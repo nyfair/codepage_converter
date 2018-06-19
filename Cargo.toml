@@ -6,3 +6,6 @@ authors = ["nyfair <nyfair2012@gmail.com>"]
 [dependencies]
 walkdir = "*"
 encoding = "*"
+
+[profile.release]
+lto = true

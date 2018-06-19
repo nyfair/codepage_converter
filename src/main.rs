@@ -79,7 +79,7 @@ fn main() {
     reader.read_to_end(&mut raw).unwrap();
 		let hex = from_encoding.decode(&raw, encoding::DecoderTrap::Ignore).unwrap();
 		let traw = to_encoding.encode(hex.as_str(), encoding::EncoderTrap::Ignore).unwrap();
-		let tfile = OpenOptions::new().write(true).open(path).unwrap();
+		let tfile = OpenOptions::new().write(true).truncate(true).open(path).unwrap();
     let mut writer = BufWriter::new(tfile);
 		writer.write_all(&traw).unwrap();
 	}

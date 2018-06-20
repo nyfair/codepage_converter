@@ -5,7 +5,7 @@ authors = ["nyfair <nyfair2012@gmail.com>"]
 
 [dependencies]
 walkdir = "*"
-encoding = "*"
+encoding_rs = "*"
 
 [profile.release]
 lto = true

@@ -1,4 +1,4 @@
-extern crate encoding;
+extern crate encoding_rs;
 extern crate walkdir;
 
 use std::{env::args, fs::{OpenOptions, rename}, io::{BufReader, BufWriter, prelude::*, stdin}, path::Path, process::exit};
@@ -19,8 +19,8 @@ fn main() {
 		_ => { showhelp() }
 	}
 	
-	let from_encoding = encoding::label::encoding_from_whatwg_label(from_code).unwrap();
-	let to_encoding = encoding::label::encoding_from_whatwg_label(to_code).unwrap();
+	let from_encoding = encoding_rs::Encoding::for_label(from_code.as_bytes()).unwrap();
+	let to_encoding = encoding_rs::Encoding::for_label(to_code.as_bytes()).unwrap();
 	let path = Path::new(&args[1]);
 	if path.is_dir() {
 		let files = walkdir::WalkDir::new(path).into_iter().filter_map(|e| e.ok());
@@ -28,8 +28,8 @@ fn main() {
 		let mut cbuf: Vec<String> = Vec::new();
 		for f in files {
 			let fname = f.path().to_str().unwrap();
-			let hex = from_encoding.encode(fname, encoding::EncoderTrap::Ignore).unwrap();
-			let cname = to_encoding.decode(&hex, encoding::DecoderTrap::Ignore).unwrap();
+			let hex = from_encoding.encode(fname).0;
+			let cname = to_encoding.decode(&hex).0;
 			println!("{}\n{}", fname, cname);
 			fbuf.push(fname.to_string());
 			cbuf.push(cname.to_string());
@@ -77,8 +77,8 @@ fn main() {
     let mut reader = BufReader::new(file);
     let mut raw:Vec<u8> = Vec::new();
     reader.read_to_end(&mut raw).unwrap();
-		let hex = from_encoding.decode(&raw, encoding::DecoderTrap::Ignore).unwrap();
-		let traw = to_encoding.encode(hex.as_str(), encoding::EncoderTrap::Ignore).unwrap();
+		let hex = from_encoding.decode(&raw).0;
+		let traw = to_encoding.encode(&hex).0;
 		let tfile = OpenOptions::new().write(true).truncate(true).open(path).unwrap();
     let mut writer = BufWriter::new(tfile);
 		writer.write_all(&traw).unwrap();

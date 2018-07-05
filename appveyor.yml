@@ -1,0 +1,44 @@
+image: Visual Studio 2017
+
+environment:
+  global:
+    RUST_VERSION: stable
+  matrix:
+    - target: i686
+      osname: win32
+    - target: x86_64
+      osname: win64
+
+install:
+  - curl -sSf -o rustup-init.exe https://win.rustup.rs/
+  - rustup-init.exe -y --default-host %target%-pc-windows-msvc --default-toolchain %RUST_VERSION%
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
+  - rustc -Vv
+  - cargo -V
+
+before_deploy:
+  - cargo build --release
+  - mkdir dist
+  - move target\release\*.exe dist
+  - cd dist
+  - 7z a %osname%-%APPVEYOR_REPO_TAG_NAME%.7z *
+  - appveyor PushArtifact %osname%-%APPVEYOR_REPO_TAG_NAME%.7z
+
+deploy:
+  artifact: /.*\.7z/
+  auth_token:
+    secure: J1DFsRUBaJKZ2HqHKOQEA427FUsKo6rDTxtxyUwARP7k0Ac5SgX1qn77+LYXdwk6
+  description: ''
+  on:
+    RUST_VERSION: stable
+    appveyor_repo_tag: true
+  provider: GitHub
+
+cache:
+  - C:\Users\appveyor\.cargo\registry
+
+branches:
+  only:
+    - /^\d+.*$/
+
+build: false

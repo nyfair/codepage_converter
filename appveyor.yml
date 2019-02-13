@@ -2,7 +2,7 @@ image: Visual Studio 2017
 
 environment:
   global:
-    RUST_VERSION: stable
+    RUST_VERSION: nightly
   matrix:
     - target: i686
       osname: win32
@@ -17,11 +17,10 @@ install:
   - cargo -V
 
 before_deploy:
+  - move NightlyTest.toml Cargo.toml
   - cargo build --release
-  - mkdir dist
-  - move target\release\*.exe dist
-  - cd dist
-  - 7z a %osname%-%APPVEYOR_REPO_TAG_NAME%.7z *
+  - move target\release\*.exe .
+  - 7z a %osname%-%APPVEYOR_REPO_TAG_NAME%.7z codepage_converter.exe
   - appveyor PushArtifact %osname%-%APPVEYOR_REPO_TAG_NAME%.7z
 
 deploy:
@@ -30,7 +29,6 @@ deploy:
     secure: J1DFsRUBaJKZ2HqHKOQEA427FUsKo6rDTxtxyUwARP7k0Ac5SgX1qn77+LYXdwk6
   description: ''
   on:
-    RUST_VERSION: stable
     appveyor_repo_tag: true
   provider: GitHub
 

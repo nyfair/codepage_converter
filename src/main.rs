@@ -28,18 +28,16 @@ fn main() {
     let mut cbuf: Vec<String> = Vec::new();
     for f in files {
       let fname = f.path().to_str().unwrap();
-      let hex = from_encoding.encode(fname).0;
-      let cname = to_encoding.decode(&hex).0;
-      println!("{}\n{}", fname, cname);
-      fbuf.push(fname.to_string());
-      cbuf.push(cname.to_string());
-    }
-    let count = fbuf.len();
-    if count < 1 {
-      println!("Couldn't find any files from given path");
-      showhelp();
+      if fname != "." {
+        let hex = from_encoding.encode(fname).0;
+        let cname = to_encoding.decode(&hex).0;
+        println!("{}\n{}", fname, cname);
+        fbuf.push(fname.to_string());
+        cbuf.push(cname.to_string());
+      }
     }
 
+    let count = fbuf.len();
     println!("\n{} files/directories in all, do the conversion?(Yes/No/Manually)", count);
     let mut pflag = false;
     let mut key = String::new();
@@ -73,7 +71,13 @@ fn main() {
       println!("mv \"{}\" \"{}\"", &fbuf[0], &cbuf[0]);
     }
   } else {
-    let file = OpenOptions::new().read(true).open(path).unwrap();
+    let file = match OpenOptions::new().read(true).open(path) {
+      Ok(f) => f,
+      Err(_) => {
+        println!("Couldn't find any files from given path\n");
+        return showhelp()
+      }
+    };
     let mut reader = BufReader::new(file);
     let mut raw:Vec<u8> = Vec::new();
     reader.read_to_end(&mut raw).unwrap();

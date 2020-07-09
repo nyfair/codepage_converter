@@ -42,9 +42,9 @@ fn main() {
     let mut pflag = false;
     let mut key = String::new();
     stdin().read_line(&mut key).unwrap();
-    match &*key {
-      "m\n" => {},
-      "y\n" => {
+    match key.chars().next().unwrap() {
+      'm'|'M' => {},
+      'y'|'Y' => {
         pflag = true;
       },
       _ => { exit(0) }

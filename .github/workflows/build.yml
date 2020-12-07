@@ -1,0 +1,25 @@
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [win32, win64]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Compile
+      run: |
+        7z a ${{ matrix.os }}.7z *.toml
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ matrix.os }}.7z
+        name: latest
+        tag_name: latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,37 @@
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [win32, win64]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cargo
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        override: true
+    - name: Compile
+      run: |
+        move NightlyTest.toml Cargo.toml
+        cargo build --release
+        move target\release\*.exe .
+        7z a ${{ matrix.os }}.7z *.exe
+    - name: Delete
+      uses: ame-yu/action-delete-latest-release@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ matrix.os }}.7z
+        name: latest
+        tag_name: latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

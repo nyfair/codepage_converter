@@ -34,7 +34,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: *.7z
+        file: ${{ matrix.os }}*.7z
         tag: latest
         overwrite: true
         file_glob: true

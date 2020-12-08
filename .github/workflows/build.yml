@@ -12,14 +12,29 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Compile
+    - name: Compile Stable
       run: |
-        7z a ${{ matrix.os }}.7z *.toml
-    - name: Release
-      uses: softprops/action-gh-release@v1
+        cargo build --release
+        move target\release\*.exe .
+        7z a ${{ matrix.os }}-stable.7z *.exe
+        del *.exe
+    - name: Switch Nightly Toolchain
+      uses: actions-rs/toolchain@v1
       with:
-        files: ${{ matrix.os }}.7z
-        name: latest
-        tag_name: latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        toolchain: nightly
+        override: true
+    - name: Compile Nightly
+      run: |
+        del Cargo.toml
+        move Nightly.toml Cargo.toml
+        cargo build --release
+        move target\release\*.exe .
+        7z a ${{ matrix.os }}.7z *.exe
+    - name: Upload
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: *.7z
+        tag: latest
+        overwrite: true
+        file_glob: true

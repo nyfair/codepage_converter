@@ -9,7 +9,7 @@ walkdir = "*"
 [dependencies.encoding_rs]
 version = "*"
 default-features = false
-features = ["simd-accel", "fast-legacy-encode"]
+features = ["simd-accel", "fast-legacy-encode", "alloc"]
 
 [profile.release]
 lto = true

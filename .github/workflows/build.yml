@@ -11,7 +11,7 @@ jobs:
         os: [win32, win64]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Compile Stable
       run: |
         cargo build --release
@@ -21,7 +21,7 @@ jobs:
     - name: Switch Nightly Toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: nightly
+        toolchain: nightly-2024-02-04
         override: true
     - name: Compile Nightly
       run: |

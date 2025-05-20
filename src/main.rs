@@ -1,12 +1,23 @@
 extern crate encoding_rs;
-extern crate walkdir;
 
-use std::{env::args, fs::{OpenOptions, rename}, io::{Error, ErrorKind, Result, BufReader, BufWriter, prelude::*, stdin}, path::Path, process::exit};
+use std::{env::args, fs::{OpenOptions, read_dir, rename}, io::{Error, ErrorKind, Result, BufReader, BufWriter, prelude::*, stdin}, path::{Path, PathBuf}, process::exit};
 
 fn showhelp() {
   println!("Usage: codepage_converter PATH|FILE FROM_CODE(gbk) TO_CODE(shift_jis)");
   println!("Check https://encoding.spec.whatwg.org/#concept-encoding-get for all valid encoding");
   exit(1);
+}
+
+fn walkdir(vec: &mut Vec<PathBuf>, path: &Path) -> Result<()> {
+  for entry in read_dir(path)? {
+    let entry = entry?;
+    let path = entry.path();
+    vec.push(path.clone());
+    if path.is_dir() {
+      walkdir(vec, &path)?;
+    }
+  }
+  Ok(())
 }
 
 fn main() -> Result<()> {
@@ -23,11 +34,12 @@ fn main() -> Result<()> {
   let to_encoding = encoding_rs::Encoding::for_label(to_code.as_bytes()).ok_or_else(|| {Error::new(ErrorKind::Other, "Invalid from encoding")})?;
   let path = Path::new(&args[1]);
   if path.is_dir() {
-    let files = walkdir::WalkDir::new(path).into_iter().filter_map(|e| e.ok());
+    let mut files: Vec<PathBuf> = Vec::new();
+    walkdir(&mut files, path)?;
     let mut fbuf: Vec<String> = Vec::new();
     let mut cbuf: Vec<String> = Vec::new();
     for f in files {
-      match f.path().to_str() {
+      match f.as_path().to_str() {
         Some(".") | None => {},
         Some(fname) => {
           let hex = from_encoding.encode(fname).0;

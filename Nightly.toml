@@ -3,9 +3,6 @@ name = "codepage_converter"
 version = "1.0.0"
 authors = ["nyfair <nyfair2012@gmail.com>"]
 
-[dependencies]
-walkdir = "*"
-
 [dependencies.encoding_rs]
 version = "*"
 default-features = false
